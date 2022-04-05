@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -21,11 +22,15 @@ import javax.swing.ImageIcon;
  * @author Miguel Matul <https://github.com/MigueMat4>
  */
 public class frmMain extends javax.swing.JFrame {
-    
+
     Pokemon whoIsThatPokemon; // objeto de la clase que hace match con los datos de la API
+    Pokemon[] aleatorioss = new Pokemon[3];//para los otro botones
     Pokedex dexter = new Pokedex();
     PokeViewer visor = new PokeViewer();
     Reloj horaActual = new Reloj();
+    Hilos hilito1 = new Hilos(1);//A
+    String sies;
+    String[] nombres = new String[4];
 
     /**
      * Creates new form frmMain
@@ -34,10 +39,11 @@ public class frmMain extends javax.swing.JFrame {
         initComponents();
         horaActual.start();
     }
-    
+
     public class PokeViewer {
+
         public void mostrarSprites() {
-            if (whoIsThatPokemon != null){
+            if (whoIsThatPokemon != null) {
                 try {
                     lblSprite.setText("");
                     // obtengo la url del listado de cada uno de los sprites que me dio la API
@@ -46,7 +52,7 @@ public class frmMain extends javax.swing.JFrame {
                     lblSprite.setIcon(new ImageIcon(img));
                     // 1 segundo para cada cambio de sprite
                     Thread.sleep(1000);
-                        
+
                     url = new URL(whoIsThatPokemon.getSprites().get("back_default").toString());
                     img = ImageIO.read(url);
                     lblSprite.setIcon(new ImageIcon(img));
@@ -56,8 +62,7 @@ public class frmMain extends javax.swing.JFrame {
                 } catch (InterruptedException | IOException ex) {
                     Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            }
-            else{
+            } else {
                 lblSprite.setText("?");
                 btnPokemon1.setText("???");
                 btnPokemon2.setText("???");
@@ -166,16 +171,8 @@ public class frmMain extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnJugarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnJugarActionPerformed
-        try {
-            whoIsThatPokemon = dexter.buscarPokemon();
-            btnPokemon1.setText(whoIsThatPokemon.getName());
-            btnPokemon2.setText(whoIsThatPokemon.getName());
-            btnPokemon3.setText(whoIsThatPokemon.getName());
-            btnPokemon4.setText(whoIsThatPokemon.getName());
-            visor.mostrarSprites();
-        } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        hilito1.start();
+
         btnJugar.setText("Jugar de nuevo");
     }//GEN-LAST:event_btnJugarActionPerformed
 
@@ -213,28 +210,32 @@ public class frmMain extends javax.swing.JFrame {
             }
         });
     }
-    
+
     // clase para la hora del sistema. ¡No modificar!
     public class Reloj extends Thread {
+
         Calendar calendario;
-        
+
         @Override
         public void run() {
             while (true) {
                 String horaSistema = "";
                 calendario = Calendar.getInstance();
-                if (calendario.get(Calendar.HOUR_OF_DAY)<10)
-                    horaSistema += String.valueOf("0"+calendario.get(Calendar.HOUR_OF_DAY)) + ":";
-                else
+                if (calendario.get(Calendar.HOUR_OF_DAY) < 10) {
+                    horaSistema += String.valueOf("0" + calendario.get(Calendar.HOUR_OF_DAY)) + ":";
+                } else {
                     horaSistema += String.valueOf(calendario.get(Calendar.HOUR_OF_DAY)) + ":";
-                if (calendario.get(Calendar.MINUTE)<10)
-                    horaSistema += String.valueOf("0"+calendario.get(Calendar.MINUTE)) + ":";
-                else
+                }
+                if (calendario.get(Calendar.MINUTE) < 10) {
+                    horaSistema += String.valueOf("0" + calendario.get(Calendar.MINUTE)) + ":";
+                } else {
                     horaSistema += String.valueOf(calendario.get(Calendar.MINUTE)) + ":";
-                if (calendario.get(Calendar.SECOND)<10)
-                    horaSistema += String.valueOf("0"+calendario.get(Calendar.SECOND)) + ":";
-                else
+                }
+                if (calendario.get(Calendar.SECOND) < 10) {
+                    horaSistema += String.valueOf("0" + calendario.get(Calendar.SECOND)) + ":";
+                } else {
                     horaSistema += String.valueOf(calendario.get(Calendar.SECOND)) + ":";
+                }
                 horaSistema += String.valueOf(calendario.get(Calendar.MILLISECOND)) + " hrs";
                 lblHoraSistema.setText(horaSistema);
                 try {
@@ -243,6 +244,57 @@ public class frmMain extends javax.swing.JFrame {
                     Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+        }
+    }
+
+    public class Hilos extends Thread {
+
+        boolean iniciar = true;
+        private int num;
+
+        public Hilos(int n) {
+            this.num = n;
+        }
+
+        @Override
+
+        public void run() {
+            try {
+
+                whoIsThatPokemon = dexter.buscarPokemon();
+                sies = whoIsThatPokemon.getName();
+                System.out.println(sies);
+                visor.mostrarSprites();
+
+                for (int i = 0; i < 3; i++) {
+                    aleatorioss[i] = dexter.buscarPokemon();
+                    nombres[i] = aleatorioss[i].getName();
+                }
+                nombres[3] = sies;
+                String[] otro = new String[4];
+                for (int i = 0; i < 4; i++) {
+                    Random random = new Random();
+                    int value = random.nextInt(4 + 0) + 0;
+                    otro[i]=nombres[value];
+                }
+                Random random = new Random();
+                int value = random.nextInt(3 + 0) + 0;
+                btnPokemon1.setText(nombres[0]);
+                btnPokemon2.setText(nombres[1]);
+                btnPokemon3.setText(nombres[2]);
+                btnPokemon4.setText(nombres[3]);
+
+
+                /*
+                btnPokemon1.setText(whoIsThatPokemon.getName());
+                btnPokemon2.setText(whoIsThatPokemon.getName());
+                btnPokemon3.setText(whoIsThatPokemon.getName());
+                btnPokemon4.setText(whoIsThatPokemon.getName());*/
+                //visor.mostrarSprites();
+            } catch (IOException | InterruptedException ex) {
+                Logger.getLogger(frmMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
         }
     }
 
